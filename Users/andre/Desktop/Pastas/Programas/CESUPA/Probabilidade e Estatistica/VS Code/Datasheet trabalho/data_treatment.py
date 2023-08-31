@@ -32,6 +32,9 @@ df.rename(columns = {'speechiness_%': 'Speechiness (%)'}, inplace = True)
 # Explorando os dados do Dataframe
 exploreData(df)
 
+# Verificando se existem valores não numericos na coluna Streams
+df['Streams'] = df['Streams'].str.replace(r'\D', '', regex = True)
+
 # Se existirem dados nulos, eles serão preenchidos com 0
 if verifyNullData(df):
     df = df.fillna(0)
@@ -42,4 +45,11 @@ if verifyDuplicatedData(df):
     df = df.drop_duplicates()
     verifyDuplicatedData(df) # Verifica se restaram dados duplicados
 
-# print(artistsFrequencyPercentage(df))
+df['Streams'] = df['Streams'].astype(float)
+
+# Removendo outliers
+mask = (df['Streams'] > 2762) & (df['Streams'] < 11053756970173)
+df = df[mask]
+
+df = df.sort_values(by = 'Streams', ascending = True)
+df = df.reset_index(drop = True)

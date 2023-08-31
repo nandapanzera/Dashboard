@@ -9,9 +9,10 @@ url_theme2 = dbc.themes.VAPOR
 template_theme1 = 'flatly'
 template_theme2 = 'vapor'
 
-artist_options = [{'label' : x, 'value': x} for x in df['Track Name'].unique()]
+track_options = [{'label' : x, 'value': x} for x in df['Track Name'].unique()]
+artist_options = [{'label': x, 'value': x} for x in df['Artist Name'].unique()]
 
-first_row = df.iloc[0]  # Pega a primeira linha do dfFrame
+first_row = df.iloc[0]  # Pega a primeira linha do dataframe
 column_options = [{'label': column, 'value': column} for column in first_row.index]
 
 app.layout = dbc.Container([
@@ -25,98 +26,90 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H1('Music Selected'),
+            html.Button("Mostrar/Ocultar Dropdown de Faixas", id = "toggle-tracks-button"),
             dcc.Dropdown(
                 id = 'tracks',
-                value = [track['label'] for track in artist_options],
+                value = [track['label'] for track in track_options[:20]],
                 multi = True,
-                options = artist_options,
+                options = track_options,
+                style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
             ),
         ])
     ]),
     dbc.Row([
         dbc.Col([
-            html.H1('Y axis options'),
+            html.H3('Pizza'),
+            dcc.Graph(id = 'pie-graph')
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
             dcc.Dropdown(
-                id = 'y-axis',
-                value = column_options[0]['value'],
-                options = column_options
+                id = 'artists',
+                value = [artist['label'] for artist in artist_options[:3]],
+                multi = True,
+                options = artist_options
             )
         ])
     ])
-    # dbc.Row([
-    #     dbc.Col([
-    #         dcc.Dropdown(
-    #         id = 'entity1',
-    #         value = entity_options[0]['label'],
-    #         options = entity_options
-    #         ),
-    #         dcc.Graph(id = 'indicator1')
-    #     ])
-    # ]),
-    # dbc.Row([
-    #     dbc.Col([
-    #         dcc.Dropdown(
-    #             id = 'entity2',
-    #             value = entity_options[1]['label'],
-    #             options = entity_options
-    #         ),
-    #         dcc.Graph(id = 'indicator2')
-    #     ])
-    # ])
 ])
+
+@app.callback(
+    Output('tracks', 'style'),
+    Input('toggle-tracks-button', 'n_clicks'),
+    State('tracks', 'style'),
+)
+def toggle_tracks_dropdown(n_clicks, current_style):
+    if n_clicks is None:
+        return current_style
+
+    if current_style.get('display') == 'none':
+        new_style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+    else:
+        new_style = {'display': 'none'}
+
+    return new_style
 
 @app.callback(
     Output('bar-graph', 'figure'),
     Input('tracks', 'value'),
-    Input('y-axis', 'value'),
     Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
 )
-def bar(tracks, y_column_name, toggle):
+def bar(tracks, toggle):
     templates = template_theme1 if toggle else template_theme2
 
     df_data = df.copy(deep = True)
     mask = df_data['Track Name'].isin(tracks)
 
-    max_x = df['Streams'].max()
-    max_y = df_data[mask][y_column_name].max()
+    max_name_length = 10
+    df_data['Short Track Name'] = df_data['Track Name'].apply(lambda name: name[:max_name_length] + '...' if len(name) > max_name_length else name)
 
-    fig = px.bar(df_data[mask], x = 'Streams', y = y_column_name, color = 'Artist Name', template = templates, range_x = [None, max_x], range_y = [None, max_y])
+    df_data['Short Artist Name'] = df_data['Artist Name'].apply(lambda artist: artist.split(',')[0])
+
+    fig = px.bar(df_data[mask], x = 'Short Track Name', y = 'Streams', color = 'Short Artist Name', template = templates, text = 'Short Artist Name', hover_data={'Track Name': True, 'Short Track Name': False, 'Short Artist Name': False})
+
+    fig.update_xaxes(title_text = 'Tracks')
 
     return fig
 
-# @app.callback(
-#     Output('indicator1', 'figure'),
-#     Output('indicator2', 'figure'),
-#     Input('entity1', 'value'),
-#     Input('entity2', 'value'),
-#     Input('y-axis', 'value'),
-#     Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
-# )
+@app.callback(
+    Output('pie-graph', 'figure'),
+    Input('artists', 'value'),
+    Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
+)
 
-# def indicators(entity1, entity2, y_column_name, toggle):
-#     templates = template_theme1 if toggle else template_theme2
+def pie(artists, toggle):
+    templates = template_theme1 if toggle else template_theme2
 
-#     df_df = df.copy(deep = True)
+    df_data = df.copy(deep = True)
+    mask = df_data['Artist Name'].isin(artists)
 
-#     df_entity1 = df_df[df_df['Entity'].isin([entity1])]
-#     df_entity2 = df_df[df_df['Entity'].isin([entity2])]
+    df_data['Artist Count'] = df_data['Artist Name'].value_counts()
+    # df_data = df_data.sort_values(by = 'Artist Name', ascending = False)
 
-#     iterable = [(entity1, df_entity1), (entity2, df_entity2)]
-#     indicators = []
+    fig = px.pie(df_data[mask].unique(), values = 'Artist Count', template = templates)
 
-#     for entity, df in iterable:
-#         fig = go.Figure()
-#         fig.add_trace(go.Indicator(
-#             mode = 'number+delta',
-#             title = {'text': entity},
-#             value = df.at[df.index[-1], y_column_name],
-#             delta = {'relative': True, 'valueformat': '.1%', 'reference': df.at[df.index[0], y_column_name]}
-#         ))
-
-#         fig.update_layout(template = templates)
-#         indicators.append(fig)
-
-#     return indicators
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug = True, port = '8051')

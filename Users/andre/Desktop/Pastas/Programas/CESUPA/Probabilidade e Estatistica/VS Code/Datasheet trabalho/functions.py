@@ -37,12 +37,12 @@ def exploreData(df):
 # Retorna uma lista dos artistas que mais aparecem no Dataframe
 def artistsFrequency(df):
     # Obter uma lista ordenada de artistas únicos
-    artist = sorted(df['artist(s)_name'].unique())
-    print(f"Lista de Artistas:\n{artist}\n")
+    # artist = sorted(df['Artist Name'].unique())
+    # print(f"Lista de Artistas:\n{artist}\n")
 
     # Contar a frequência de cada artista
-    artist_f = df['artist(s)_name'].value_counts()
-    artistas_por_frequencia = artist_f.sort_values(ascending=False)
+    artist_f = df['Artist Name'].value_counts()
+    artistas_por_frequencia = artist_f.sort_values(ascending = False)
 
     return artistas_por_frequencia
 
