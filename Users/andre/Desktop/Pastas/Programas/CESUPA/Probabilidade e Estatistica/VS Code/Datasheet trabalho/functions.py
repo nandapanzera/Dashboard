@@ -46,19 +46,40 @@ def artistsFrequency(df):
 
     return artistas_por_frequencia
 
-# # Retorna a porcentagem dos 3 artistas que mais aparecem
-# def artistsFrequencyPercentage(df):
-#     taylorSwift = df[df['artist(s)_name'] =="Taylor Swift"]['artist(s)_name'].count()
-#     tsPorcentagem = (taylorSwift/df['track_name'].shape) * 100
-#     print(f"1- Taylor Swift: {taylorSwift}, {tsPorcentagem}%")
+# Porcentagem dos 3 Artistas que mais aparecem
 
-#     theWeeknd = df[df['artist(s)_name'] =="The Weeknd"]['artist(s)_name'].count()
-#     twPorcentagem = (theWeeknd/df['track_name'].shape) * 100
-#     print(f"2- The Weeknd: {theWeeknd}, {twPorcentagem}%")
+def artistFrequencyPercentage(df):
+    taylorSwift = df[df['Artist Name'] == "Taylor Swift"]['Artist Name'].count()
+    tsPorcentagem = (taylorSwift/df['Track Name'].shape) * 100
+    # print(f"1- Taylor Swift: {taylorSwift}, {tsPorcentagem}%")
 
-#     badBunny = df[df['artist(s)_name'] =="Bad Bunny"]['artist(s)_name'].count()
-#     bbPorcentagem = (badBunny/df['track_name'].shape) * 100
-#     print(f"3- Bad Bunny: {badBunny}, {bbPorcentagem}%")
+    theWeeknd = df[df['Artist Name'] == "The Weeknd"]['Artist Name'].count()
+    twPorcentagem = (theWeeknd/df['Track Name'].shape) * 100
+    # print(f"2- The Weeknd: {theWeeknd}, {twPorcentagem}%")
 
-#     outros = 100 - tsPorcentagem - twPorcentagem - bbPorcentagem
-#     print(f"Outros: {outros}%")
+    badBunny = df[df['Artist Name'] == "Bad Bunny"]['Artist Name'].count()
+    bbPorcentagem = (badBunny/df['Track Name'].shape) * 100
+    # print(f"3- Bad Bunny: {badBunny}, {bbPorcentagem}%")
+
+    outros = 100 - tsPorcentagem - twPorcentagem - bbPorcentagem
+    # print(f"Outros: {outros}%")
+
+    data = {
+        "ArtistName": ["Taylor Swift", "The Weeknd", "Bad Bunny", "Outros"],
+        "Value": [tsPorcentagem, twPorcentagem, bbPorcentagem, outros]
+    }
+
+    return data
+
+def customSplit(artist):
+        if artist == 'Tyler, The Creator':
+            return artist.split(',')[1] if ',' in artist else artist
+        return artist.split(',')[0] if ',' in artist else artist
+
+def sortByStreams(df):
+    df = df.sort_values(by = 'Streams', ascending = True)
+    df = df.reset_index(drop = True)
+
+def sortByDate(df):
+    df = df.sort_values(by = 'Date', ascending = True)
+    df = df.reset_index(drop = True)

@@ -46,6 +46,9 @@ if verifyDuplicatedData(df):
     verifyDuplicatedData(df) # Verifica se restaram dados duplicados
 
 df['Streams'] = df['Streams'].astype(float)
+df['Released Day'] = df['Released Day'].astype(int)
+df['Released Month'] = df['Released Month'].astype(int)
+df['Released Year'] = df['Released Year'].astype(int)
 
 # Removendo outliers
 mask = (df['Streams'] > 2762) & (df['Streams'] < 11053756970173)
