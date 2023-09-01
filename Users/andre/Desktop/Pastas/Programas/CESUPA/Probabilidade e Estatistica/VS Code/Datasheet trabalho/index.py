@@ -107,7 +107,7 @@ def toggle_tracks_dropdown(n_clicks, current_style):
     State('year', 'style'), 
 )
 
-def toggle_tracks_dropdown2(n_clicks, current_style):
+def toggle_years_dropdown(n_clicks, current_style):
     if n_clicks is None:
         return current_style
 
