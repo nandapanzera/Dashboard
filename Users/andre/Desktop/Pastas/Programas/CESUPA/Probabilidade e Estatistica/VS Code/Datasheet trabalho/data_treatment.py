@@ -35,6 +35,9 @@ exploreData(df)
 # Verificando se existem valores não numericos na coluna Streams
 df['Streams'] = df['Streams'].str.replace(r'\D', '', regex = True)
 
+# Remoção de caracteres especiais se for uma string
+df = df.applymap(lambda x: unidecode(x) if isinstance(x, str) else x)
+
 # Se existirem dados nulos, eles serão preenchidos com 0
 if verifyNullData(df):
     df = df.fillna(0)
@@ -45,6 +48,7 @@ if verifyDuplicatedData(df):
     df = df.drop_duplicates()
     verifyDuplicatedData(df) # Verifica se restaram dados duplicados
 
+# Conversão de tipos de dado
 df['Streams'] = df['Streams'].astype(float)
 df['Released Day'] = df['Released Day'].astype(int)
 df['Released Month'] = df['Released Month'].astype(int)
@@ -52,11 +56,12 @@ df['Released Year'] = df['Released Year'].astype(int)
 df['BPM'] = df['BPM'].astype(int)
 
 # Removendo outliers
-mask = (df['Streams'] > 2762) & (df['Streams'] < 11053756970173)
+mask = (df['Streams'] > 2762) & (df['Streams'] < 11053756970173) # Só restam valores dentro desse intervalo
 df = df[mask]
 
-mask = (df['Released Year'] > 1942)
+mask = (df['Released Year'] > 1942) # Só restam valores maiores que 1942
 df = df[mask]
 
+# Ordena o dataframe pelo numero de Streams de forma crescente
 df = df.sort_values(by = 'Streams', ascending = True)
 df = df.reset_index(drop = True)
