@@ -28,22 +28,47 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H1('Tracks x Streams', className = 'text-center'),
-            html.H3('Selected Music', className = 'text-center'),
+            html.H3('Selected Tracks', className = 'text-center'),
             dcc.Dropdown(
                 id = 'tracks',
                 value = [track['label'] for track in track_options[:20]],
                 multi = True,
                 options = track_options,
                 style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
-            ),
-            html.Button("Show/Hide Tracks", id = "toggle-tracks-button")
+            )
+        ]),
+        dbc.Row([
+            html.Button("Show/Hide Tracks", id = "toggle-tracks-button", style = {'margin-left': '12px'})
         ])
     ]),
     dbc.Row([
         dbc.Col([
             dcc.Graph(id = 'bar-graph'),
             html.Br(),
+            html.Br()
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
+            html.H1('Track x Streams (%)', className = 'text-center'),
+            html.H3('Selected Tracks', className = 'text-center'),
+            dcc.Dropdown(
+                id = 'tracks2',
+                value = [track['label'] for track in track_options[:10]],
+                multi = True,
+                options = track_options,
+                style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+            )
+        ]),
+        dbc.Row([
+            html.Button("Show/Hide Tracks", id = 'toggle-tracks-button2', style = {'margin-left': '12px'})
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(id = 'pie-chart'),
             html.Br(),
+            html.Br()
         ])
     ]),
     dbc.Row([
@@ -56,7 +81,7 @@ app.layout = dbc.Container([
                 multi = True,
                 options = year_options,
                 style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
-            ),
+            )
         ]),
         dbc.Row([
             html.Button("Show/Hide Years", id = "toggle-years-button", style = {'margin-left': '12px'})
@@ -64,25 +89,53 @@ app.layout = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col([
-            dcc.Graph(id = 'scatter-chart')
+            dcc.Graph(id = 'scatter-chart'),
+            html.Br(),
+            html.Br()
         ])
     ]),
     dbc.Row([
         dbc.Col([
+            html.H1('BPM Average x Years', className = 'text-center'),
+            html.H3('Selected Years', className = 'text-center'),
             dcc.Dropdown(
-                id = 'track3',
-                value = [track['label'] for track in track_options[:3]],
+                id = 'year2',
+                value = [year['label'] for year in year_options],
                 multi = True,
-                options = track_options
-            ),
+                options = year_options,
+                style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+            )
+        ]),
+        dbc.Row([
+            html.Button("Show/Hide Years", id = 'toggle-years-button2', style = {'margin-left': '12px'})
         ])
     ]),
     dbc.Row([
         dbc.Col([
-            html.H3('Pizza'),
-            dcc.Graph(id = 'pie-chart')
+            dcc.Graph(id = 'bar-graph2'),
+            html.Br(),
+            html.Br()
         ])
     ]),
+    dbc.Row([
+        dbc.Col([
+            html.H1('Average number of tracks per Year', className = 'text-center'),
+            html.H3('Selected Years', className = 'text-center'),
+            dcc.Dropdown(
+                id = 'year3',
+                value = [years['label'] for years in year_options],
+                multi = True,
+                options = year_options,
+                style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+            )
+        ]),
+        html.Button("Show/Hide Years", id = 'toggle-years-button3', style = {'margin-left': '12px'})
+    ]),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(id = 'bar-graph3')
+        ])
+    ])
 ])
 
 @app.callback(
@@ -102,12 +155,62 @@ def toggle_tracks_dropdown(n_clicks, current_style):
     return new_style
 
 @app.callback(
+    Output('tracks2', 'style'),
+    Input('toggle-tracks-button2', 'n_clicks'),
+    State('tracks2', 'style'),
+)
+def toggle_tracks_dropdown2(n_clicks, current_style):
+    if n_clicks is None:
+        return current_style
+
+    if current_style.get('display') == 'none':
+        new_style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+    else:
+        new_style = {'display': 'none'}
+
+    return new_style
+
+@app.callback(
     Output('year', 'style'),
     Input('toggle-years-button', 'n_clicks'),
     State('year', 'style'), 
 )
 
 def toggle_years_dropdown(n_clicks, current_style):
+    if n_clicks is None:
+        return current_style
+
+    if current_style.get('display') == 'none':
+        new_style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+    else:
+        new_style = {'display': 'none'}
+
+    return new_style
+
+@app.callback(
+    Output('year2', 'style'),
+    Input('toggle-years-button2', 'n_clicks'),
+    State('year2', 'style'), 
+)
+
+def toggle_years_dropdown2(n_clicks, current_style):
+    if n_clicks is None:
+        return current_style
+
+    if current_style.get('display') == 'none':
+        new_style = {'display': 'block', 'overflow': 'visible', 'height': 'auto'}
+    else:
+        new_style = {'display': 'none'}
+
+    return new_style
+
+@app.callback(
+    Output('year3', 'style'),
+    Input('toggle-years-button3', 'n_clicks'),
+    State('year3', 'style')
+)
+
+def toggle_years_dropdown3(n_clicks, current_style):
     if n_clicks is None:
         return current_style
 
@@ -160,13 +263,34 @@ def scatter(years, toggle):
     df_data['Date'] = df_data['Released Day'].astype(str) + '/' + df_data['Released Month'].astype(str) + '/' + df_data['Released Year'].astype(str)
     df_data['Date'] = pd.to_datetime(df_data['Date'], format = '%d/%m/%Y')
 
-    fig = px.scatter(df_data[mask], x = 'Date', y = 'BPM', color = 'Short Track Name', template = templates)
+    fig = px.scatter(df_data[mask], x = 'Date', y = 'BPM', color = 'Short Track Name', template = templates, hover_data = {'Short Track Name': False, 'Track Name': True})
+
+    return fig
+
+@app.callback(
+    Output('bar-graph2', 'figure'),
+    Input('year2', 'value'),
+    Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
+)
+def bar2(years, toggle):
+    templates = template_theme1 if toggle else template_theme2
+
+    df_data = df.copy(deep = True)
+    mask = df_data['Released Year'].isin(years)
+
+    bpm_average_per_year = df_data.groupby('Released Year')['BPM'].mean().reset_index()
+    bpm_average_per_year.columns = ['Year', 'BPM Average']
+
+    df_data['Year'] = bpm_average_per_year['Year']
+    df_data['BPM Average'] = bpm_average_per_year['BPM Average']
+
+    fig = px.bar(df_data[mask], x = 'Year', y = 'BPM Average', color = 'Year', template = templates)
 
     return fig
 
 @app.callback(
     Output('pie-chart', 'figure'),
-    Input('track3', 'value'),
+    Input('tracks2', 'value'),
     Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
 )
 
@@ -186,6 +310,30 @@ def pie(tracks, toggle):
         text = df_data[mask]['Short Track Name'],
         textinfo = 'text'
     )
+
+    return fig
+
+@app.callback(
+    Output('bar-graph3', 'figure'),
+    Input('year3', 'value'),
+    Input(ThemeSwitchAIO.ids.switch('theme'), 'value')
+)
+
+def bar3(years, toggle):
+    templates = template_theme1 if toggle else template_theme2
+
+    df_data = df.copy(deep=True)
+    mask = df_data['Released Year'].isin(years)
+    
+    # Calcule a média de músicas lançadas por ano
+    media_por_ano = df_data.groupby('Released Year')['Track Name'].count().reset_index()
+    media_por_ano.columns = ['Year', 'Total Tracks']
+
+    df_data['Year'] = media_por_ano['Year']
+    df_data['Total Tracks'] = media_por_ano['Total Tracks']
+    
+    # Crie o gráfico de barras
+    fig = px.bar(df_data[mask], x='Year', y='Total Tracks', color='Year', template=templates)
 
     return fig
 

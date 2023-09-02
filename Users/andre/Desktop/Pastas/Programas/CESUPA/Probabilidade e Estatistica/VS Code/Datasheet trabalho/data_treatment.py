@@ -49,9 +49,13 @@ df['Streams'] = df['Streams'].astype(float)
 df['Released Day'] = df['Released Day'].astype(int)
 df['Released Month'] = df['Released Month'].astype(int)
 df['Released Year'] = df['Released Year'].astype(int)
+df['BPM'] = df['BPM'].astype(int)
 
 # Removendo outliers
 mask = (df['Streams'] > 2762) & (df['Streams'] < 11053756970173)
+df = df[mask]
+
+mask = (df['Released Year'] > 1942)
 df = df[mask]
 
 df = df.sort_values(by = 'Streams', ascending = True)

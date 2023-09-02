@@ -35,41 +35,6 @@ def exploreData(df):
     print(df.describe())
 
 # Retorna uma lista dos artistas que mais aparecem no Dataframe
-def artistsFrequency(df):
-    # Obter uma lista ordenada de artistas únicos
-    # artist = sorted(df['Artist Name'].unique())
-    # print(f"Lista de Artistas:\n{artist}\n")
-
-    # Contar a frequência de cada artista
-    artist_f = df['Artist Name'].value_counts()
-    artistas_por_frequencia = artist_f.sort_values(ascending = False)
-
-    return artistas_por_frequencia
-
-# Porcentagem dos 3 Artistas que mais aparecem
-
-def artistFrequencyPercentage(df):
-    taylorSwift = df[df['Artist Name'] == "Taylor Swift"]['Artist Name'].count()
-    tsPorcentagem = (taylorSwift/df['Track Name'].shape) * 100
-    # print(f"1- Taylor Swift: {taylorSwift}, {tsPorcentagem}%")
-
-    theWeeknd = df[df['Artist Name'] == "The Weeknd"]['Artist Name'].count()
-    twPorcentagem = (theWeeknd/df['Track Name'].shape) * 100
-    # print(f"2- The Weeknd: {theWeeknd}, {twPorcentagem}%")
-
-    badBunny = df[df['Artist Name'] == "Bad Bunny"]['Artist Name'].count()
-    bbPorcentagem = (badBunny/df['Track Name'].shape) * 100
-    # print(f"3- Bad Bunny: {badBunny}, {bbPorcentagem}%")
-
-    outros = 100 - tsPorcentagem - twPorcentagem - bbPorcentagem
-    # print(f"Outros: {outros}%")
-
-    data = {
-        "ArtistName": ["Taylor Swift", "The Weeknd", "Bad Bunny", "Outros"],
-        "Value": [tsPorcentagem, twPorcentagem, bbPorcentagem, outros]
-    }
-
-    return data
 
 def customSplit(artist):
         if artist == 'Tyler, The Creator':
